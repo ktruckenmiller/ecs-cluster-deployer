@@ -90,7 +90,6 @@ def test_deactivate_stack(base_obj):
     base_obj.deactivate_stack()
     base_obj.set_date()
 
-
 def test_test_get_date(base_obj, mock_date):
     base_obj.ssm.get_parameters.return_value= {
         'Parameters': [{
