@@ -1,0 +1,135 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+  pre_build:
+    commands:
+
+      ### HashiCorp Packer cannot currently obtain the AWS CodeBuild-assigned role and its credentials
+      ### Manually capture and configure the AWS CLI to provide HashiCorp Packer with AWS credentials
+      ### More info here: https://github.com/mitchellh/packer/issues/4279
+      - echo $CODEBUILD_RESOLVED_SOURCE_VERSION > version.txt
+      - ls
+      - |
+        #!/bin/sh
+
+        if [ -f "packer.json" ]; then
+          echo 'Using given packer.json provided by repository...'
+        else
+          echo "No packer.json file provided in the root repository, using default"
+        cat << 'EOF' > packer.json
+        {
+          "variables": {
+            "region": "{{env `REGION`}}"
+          },
+          "builders": [
+            {
+              "type": "amazon-ebs",
+              "region": "{{user `region`}}",
+              "source_ami_filter": {
+                "filters": {
+                  "virtualization-type": "hvm",
+                  "name": "amzn-ami-*-amazon-ecs-optimized",
+                  "root-device-type": "ebs"
+                },
+                "owners": [
+                  "amazon"
+                ],
+                "most_recent": true
+              },
+              "iam_instance_profile": "ecsInstanceRole",
+              "instance_type": "t2.micro",
+              "ssh_username": "ec2-user",
+              "ami_regions": "{{user `region`}}",
+              "ami_name": "ecs-linux-overlay2-{{timestamp}}",
+              "tags": {
+                "source_ami": "{{.SourceAMI}}"
+              }
+            }
+          ],
+          "provisioners": [
+            {
+              "type": "shell",
+              "execute_command": "{{ .Vars }} sudo -E -S sh '{{ .Path }}'",
+              "script": "./ecs_userdata.sh"
+            }
+          ],
+          "post-processors": [
+            [
+              {
+                "output": "manifest.json",
+                "strip_path": true,
+                "type": "manifest"
+              },
+              {
+                "inline": [
+                  "apk add jq --no-cache || true",
+                  "jq -r '.builds[-1].artifact_id | split(\":\")[1]' manifest.json > ami.txt"
+                ],
+                "type": "shell-local"
+              }
+            ]
+          ]
+        }
+        EOF
+        fi
+
+        if [ -f "ecs_userdata.sh" ]; then
+          echo 'Using given ecs_userdata.sh provided by repository...'
+        else
+        cat << 'EOF' > ecs_userdata.sh
+        set -ex
+        yum clean all
+        yum update -y
+        yum install -y aws-cli jq aws-cfn-bootstrap ecs-init amazon-efs-utils amazon-ssm-agent
+
+        stop ecs
+        service docker stop
+
+        ## Remove Device Mapper
+        EC2_AVAIL_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
+        EC2_REGION="`echo \"$EC2_AVAIL_ZONE\" | sed 's/[a-z]$//'`"
+        INSTANCE_ID=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+        VOLUME=$(aws ec2 describe-volumes --filter Name=attachment.instance-id,Values=$INSTANCE_ID --region $EC2_REGION --query 'Volumes[*].Attachments[?Device==`/dev/xvdcz`].VolumeId' --output text)
+        vgchange -an docker
+        aws ec2 detach-volume --volume-id $VOLUME --region $EC2_REGION
+        sleep 20
+        aws ec2 delete-volume --volume-id $VOLUME --region $EC2_REGION
+
+        # aws ec2 --- lookup device and unmount
+
+        echo 'DOCKER_STORAGE_OPTIONS="--storage-driver overlay2"' > /etc/sysconfig/docker-storage
+        service docker restart
+
+        EOF
+
+        fi
+        LATEST_AMI=$(aws ssm get-parameter --name /aws/service/ecs/optimized-ami/amazon-linux/recommended/image_id --region ${AWS::Region} --query "Parameter.Value")
+        FOUND_AMI=$(aws ec2 describe-images --filters Name=tag:source_ami,Values=$LATEST_AMI --query Images[0].ImageId --output text)
+        echo $FOUND_AMI
+        if [ "$FOUND_AMI" = "None" ]; then
+          echo "Build the AMI"
+          echo "Installing Packer"
+          curl -o packer.zip https://releases.hashicorp.com/packer/1.4.1/packer_1.4.1_linux_amd64.zip && unzip packer.zip
+          echo "Validating Packer template"
+          ./packer validate packer.json
+          echo "Building HashiCorp Packer template, packer.json"
+          ./packer build packer.json
+        else
+          echo "The AMI has already been created"
+          echo $FOUND_AMI > ami.txt
+        fi
+
+  post_build:
+    commands:
+      - echo "HashiCorp Packer build completed on `date`"
+      - cat ami.txt
+
+
+
+artifacts:
+  files:
+    - '**/*'
+  name: ami-details

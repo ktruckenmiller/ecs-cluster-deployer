@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+  pre_build:
+    commands:
+      - cat ami.txt
+      - cat version.txt
+      - docker pull ktruckenmiller/ecs-cluster-deployer:$ECS_CLUSTER_DEPLOYER_VERSION
+      - |
+        docker run -i \
+        -v $(pwd):/code \
+        --workdir=/code \
+        -e VERSION=$(cat version.txt) \
+        -e AWS_DEFAULT_REGION \
+        -e AMI=$(cat ami.txt) \
+        -e VALUES_FILE \
+        -e AWS_CONTAINER_CREDENTIALS_RELATIVE_URI \
+        ktruckenmiller/ecs-cluster-deployer:$ECS_CLUSTER_DEPLOYER_VERSION deploy

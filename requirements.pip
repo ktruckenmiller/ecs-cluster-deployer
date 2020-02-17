@@ -1,0 +1,6 @@
+boto3
+troposphere
+jinja2
+cerberus
+PyYaml
+GitPython

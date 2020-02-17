@@ -1,0 +1,63 @@
+#!/bin/bash
+export PATH=/usr/local/bin:$PATH
+apt-get update && apt-get -y install jq nfs-common python-pip
+pip install awscli
+aws configure set default.region ${AWS::Region}
+## port stuff
+iptables -t nat -A PREROUTING -p tcp -d 169.254.170.2 --dport 80 -j DNAT --to-destination 127.0.0.1:51679
+iptables -t nat -A OUTPUT -d 169.254.170.2 -p tcp -m tcp --dport 80 -j REDIRECT --to-ports 51679
+
+mkdir -p /efs
+mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 fs-df827476.efs.us-west-2.amazonaws.com:/ /efs
+
+cat <<EOF > /etc/init/spot-instance-termination-notice-handler.conf
+description "Start spot instance termination handler monitoring script"
+author "Amazon Web Services"
+start on started ecs
+script
+echo \$\$ > /var/run/spot-instance-termination-notice-handler.pid
+exec /usr/local/bin/spot-instance-termination-notice-handler.sh
+end script
+pre-start script
+logger "[spot-instance-termination-notice-handler.sh]: spot instance termination
+notice handler started"
+end script
+EOF
+cat <<EOF > /usr/local/bin/spot-instance-termination-notice-handler.sh
+#!/bin/bash
+while sleep 5; do
+if [ -z \$(curl -Isf http://169.254.169.254/latest/meta-data/spot/termination-time)]; then
+/bin/false
+else
+logger "[spot-instance-termination-notice-handler.sh]: spot instance termination notice detected"
+STATUS=DRAINING
+ECS_CLUSTER=\$(curl -s http://localhost:51678/v1/metadata | jq .Cluster | tr -d \")
+CONTAINER_INSTANCE=\$(curl -s http://localhost:51678/v1/metadata | jq .ContainerInstanceArn | tr -d \")
+logger "[spot-instance-termination-notice-handler.sh]: putting instance in state \$STATUS"
+
+if [ "${EcsEndpoint}" != "" ]; then
+    /usr/local/bin/aws --endpoint-url https://${EcsEndpoint} ecs update-container-instances-state --cluster \$ECS_CLUSTER --container-instances \$CONTAINER_INSTANCE --status \$STATUS
+else
+    /usr/local/bin/aws ecs update-container-instances-state --cluster \$ECS_CLUSTER --container-instances \$CONTAINER_INSTANCE --status \$STATUS
+fi
+
+logger "[spot-instance-termination-notice-handler.sh]: putting myself to sleep..."
+sleep 120 # exit loop as instance expires in 120 secs after terminating notification
+fi
+done
+EOF
+chmod +x /usr/local/bin/spot-instance-termination-notice-handler.sh
+
+echo ECS_INSTANCE_ATTRIBUTES={\"stackname\":\"${AWS::StackName}\", \"version\":\"${Version}\"} >> /etc/ecs/ecs.config
+docker pull amazon/amazon-ecs-agent:latest
+docker rm -f ecs-agent || true
+docker run --name ecs-agent \
+--detach=true \
+--restart=on-failure:10 \
+--volume=/var/run:/var/run \
+--volume=/var/log/ecs/:/log \
+--volume=/var/lib/ecs/data:/data \
+--volume=/etc/ecs:/etc/ecs \
+--net=host \
+--env-file=/etc/ecs/ecs.config \
+amazon/amazon-ecs-agent:latest

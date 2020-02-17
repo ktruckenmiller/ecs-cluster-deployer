@@ -1,0 +1,8 @@
+manifest.json
+ami.txt
+*.pyc
+__pycache__
+.cache
+.pytest_cache
+deployment.zip
+.coverage

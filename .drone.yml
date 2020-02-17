@@ -1,0 +1,190 @@
+---
+kind: pipeline
+name: deploy-dev
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: test-deployer
+  image: python:alpine
+  commands:
+  - apk add git
+  - pip install -r tests/requirements.pip
+  - pylint ecs_cluster_deployer
+  - pytest --cov-report term --cov=ecs_cluster_deployer tests/ -W ignore::DeprecationWarning
+  environment:
+    AWS_DEFAULT_REGION: us-west-2
+
+- name: zip-linux
+  image: alpine
+  commands:
+  - apk add zip unzip
+  - "cd ecs_cluster_deployer/lambdas && zip -r deployment.zip *"
+  - mv deployment.zip ../../deployment.zip
+  depends_on:
+  - test-deployer
+
+- name: upload-linux-us-east-1
+  image: plugins/s3
+  settings:
+    access_key:
+      from_secret: access_key
+    acl: public-read
+    bucket: kloudcover-public-us-east-1-601394826940
+    region: us-east-1
+    secret_key:
+      from_secret: secret_key
+    source: deployment.zip
+    target: "ecs_cluster_deployer/${DRONE_COMMIT}"
+  depends_on:
+  - zip-linux
+
+- name: upload-linux-us-west-2
+  image: plugins/s3
+  settings:
+    access_key:
+      from_secret: access_key
+    acl: public-read
+    bucket: kloudcover-public-us-west-2-601394826940
+    region: us-west-2
+    secret_key:
+      from_secret: secret_key
+    source: deployment.zip
+    target: "ecs_cluster_deployer/${DRONE_COMMIT}"
+  depends_on:
+  - zip-linux
+
+- name: upload-linux-us-east-2
+  image: plugins/s3
+  settings:
+    access_key:
+      from_secret: access_key
+    acl: public-read
+    bucket: kloudcover-public-us-east-2-601394826940
+    region: us-east-2
+    secret_key:
+      from_secret: secret_key
+    source: deployment.zip
+    target: "ecs_cluster_deployer/${DRONE_COMMIT}"
+  depends_on:
+  - zip-linux
+
+- name: build-docker
+  image: plugins/docker
+  settings:
+    build_args:
+    - "ECS_CLUSTER_DEPLOYER_VERSION=${DRONE_COMMIT}"
+    password:
+      from_secret: password
+    repo: ktruckenmiller/ecs-cluster-deployer
+    tags:
+    - latest
+    - "${DRONE_COMMIT}"
+    username:
+      from_secret: username
+  depends_on:
+  - upload-linux-us-east-1
+
+trigger:
+  event:
+  - push
+
+---
+kind: pipeline
+name: deploy-prod
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: test-deployer
+  image: python:alpine
+  commands:
+  - apk add git
+  - pip install -r tests/requirements.pip
+  - pylint ecs_cluster_deployer
+  - pytest --cov-report term --cov=ecs_cluster_deployer tests/ -W ignore::DeprecationWarning
+  environment:
+    AWS_DEFAULT_REGION: us-west-2
+
+- name: zip-linux
+  image: alpine
+  commands:
+  - apk add zip unzip
+  - "cd ecs_cluster_deployer/lambdas && zip -r deployment.zip *"
+  - mv deployment.zip ../../deployment.zip
+  depends_on:
+  - test-deployer
+
+- name: upload-linux-us-east-1
+  image: plugins/s3
+  settings:
+    access_key:
+      from_secret: access_key
+    acl: public-read
+    bucket: kloudcover-public-us-east-1-601394826940
+    region: us-east-1
+    secret_key:
+      from_secret: secret_key
+    source: deployment.zip
+    target: "ecs_cluster_deployer/${DRONE_TAG}"
+  depends_on:
+  - zip-linux
+
+- name: upload-linux-us-west-2
+  image: plugins/s3
+  settings:
+    access_key:
+      from_secret: access_key
+    acl: public-read
+    bucket: kloudcover-public-us-west-2-601394826940
+    region: us-west-2
+    secret_key:
+      from_secret: secret_key
+    source: deployment.zip
+    target: "ecs_cluster_deployer/${DRONE_TAG}"
+  depends_on:
+  - zip-linux
+
+- name: upload-linux-us-east-2
+  image: plugins/s3
+  settings:
+    access_key:
+      from_secret: access_key
+    acl: public-read
+    bucket: kloudcover-public-us-east-2-601394826940
+    region: us-east-2
+    secret_key:
+      from_secret: secret_key
+    source: deployment.zip
+    target: "ecs_cluster_deployer/${DRONE_TAG}"
+  depends_on:
+  - zip-linux
+
+- name: build-docker
+  image: plugins/docker
+  settings:
+    build_args:
+    - "ECS_CLUSTER_DEPLOYER_VERSION=${DRONE_TAG}"
+    password:
+      from_secret: password
+    repo: ktruckenmiller/ecs-cluster-deployer
+    tags:
+    - "${DRONE_TAG}"
+    username:
+      from_secret: username
+  depends_on:
+  - upload-linux-us-east-1
+
+trigger:
+  event:
+  - tag
+
+---
+kind: signature
+hmac: 05da4cbac442159673f7c110f887e48aec2335337100be1db590313ffffde10f
+
+...

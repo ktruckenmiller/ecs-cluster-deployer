@@ -1,0 +1,24 @@
+#!/bin/bash -xe
+
+{% for mount in efs_mounts %}
+mkdir -p {{mount.path}}
+echo "{{mount.id}}:/ {{mount.local_path}} efs tls,_netdev" >> /etc/fstab
+sleep 10
+mount -t efs -o tls {{mount.id}}:/ {{mount.local_path}}
+{% endfor %}
+
+cat > /etc/ecs/ecs.config << EOF
+ECS_CLUSTER=${ClusterName}
+ECS_CONTAINER_STOP_TIMEOUT={{ecs_timeout}}
+ECS_INSTANCE_ATTRIBUTES={"asg_version": "{{version}}", "ecs_deploy_version": "{{ecs_deployer_version}}", "cluster_name": "{{cluster}}", "instance_id": "$(curl http://169.254.169.254/latest/meta-data/instance-id)"}
+ECS_ENABLE_CONTAINER_METADATA=true
+ECS_ENABLE_TASK_IAM_ROLE=true
+ECS_ENABLE_TASK_ENI=true
+ECS_IMAGE_PULL_BEHAVIOR=once
+ECS_ENABLE_SPOT_INSTANCE_DRAINING=true
+ECS_CONTAINER_INSTANCE_PROPAGATE_TAGS_FROM=true
+ECS_AWSVPC_BLOCK_IMDS=true
+EOF
+
+start amazon-ssm-agent || true
+start ecs

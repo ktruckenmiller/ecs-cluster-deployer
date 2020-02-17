@@ -1,0 +1,37 @@
+---
+kind: aws-ecs-cluster-deployer
+ecs_deployer_version: 0.0.1
+cluster:
+  name: scaling-kloudcover
+  keypair: boston
+ec2_instances:
+  user_data: tests/regression/user.data.j2.sh
+  instance_profile_arn: arn:aws:iam::${AWS::AccountId}:instance-profile/ecsInstanceRole
+  autoscaling: true
+  efs_mounts:
+    - name: kloudcover
+      efs_id: fs-123123123
+      local_path: /efs
+  ebs_mounts:
+    - name: basic
+      device_name: /dev/xvda
+      size: 20
+
+  auto_scaling_groups:
+    - name: reserved
+      instance_type: t2.medium
+      desired_instances: 1
+
+  spot_fleets:
+    - name: main
+      timeout: 3m
+      desired_weight: 1
+      min_weight: 0
+      max_weight: 16
+      task_threshold_out: 1
+      task_threshold_in: 15
+      bids:
+        - instance_type: t3.small
+          price: 0.01
+        - instance_type: t3.medium
+          price: 0.014
