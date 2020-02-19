@@ -11,9 +11,12 @@ develop: build-test
 		-e VALUES_FILE=tests/regression/infra.yml \
 		ktruckenmiller/ecs-cluster-deployer:test sh
 
-generate-dronefile:
+sign:
 	drone jsonnet --stdout --stream > .drone.yml
 	drone sign ktruckenmiller/ecs-cluster-deployer --save
+	git add .drone.yml .drone.jsonnet
+	git commit -m 'updated dronefile'
+	git push
 
 build:
 	docker build \
