@@ -11,7 +11,7 @@ steps:
   image: python:alpine
   commands:
   - apk add git
-  - pip install -r tests/requirements.pip
+  - pip install -r requirements-dev.pip
   - pylint ecs_cluster_deployer
   - pytest --cov-report term --cov=ecs_cluster_deployer tests/ -W ignore::DeprecationWarning
   environment:
@@ -112,7 +112,7 @@ steps:
   image: python:alpine
   commands:
   - apk add git
-  - pip install -r tests/requirements.pip
+  - pip install -r requirements-dev.pip
   - pylint ecs_cluster_deployer
   - pytest --cov-report term --cov=ecs_cluster_deployer tests/ -W ignore::DeprecationWarning
   environment:
@@ -201,6 +201,6 @@ trigger:
 
 ---
 kind: signature
-hmac: 015602e0409123ceac804a5a5b57abfeea277ca62cf4749e2b62677894d1702c
+hmac: a0d33c1ebeeafd3ff311ed5d9a6c1fe58e7992b7f8f7b79680306c5a95a3eb54
 
 ...

@@ -31,7 +31,7 @@ local Pipeline(env) = {
       },
       commands: [
         "apk add git",
-        "pip install -r tests/requirements.pip",
+        "pip install -r requirements-dev.pip",
         "pylint ecs_cluster_deployer",
         "pytest --cov-report term --cov=ecs_cluster_deployer tests/ -W ignore::DeprecationWarning"
       ]
