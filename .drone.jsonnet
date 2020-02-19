@@ -36,6 +36,15 @@ local Pipeline(env) = {
         "pytest --cov-report term --cov=ecs_cluster_deployer tests/ -W ignore::DeprecationWarning"
       ]
     }, {
+      name: "coveralls",
+      image: "lizheming/drone-coveralls",
+      settings: {
+        token: {
+          from_secret: "coveralls_token"
+        },
+        files: [".coverage"]
+      }
+    }, {
       name: "zip-linux",
       depends_on: [ "test-deployer" ],
       image: "alpine",
