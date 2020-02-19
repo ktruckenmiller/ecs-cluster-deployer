@@ -10,7 +10,7 @@ steps:
 - name: test-deployer
   image: python:alpine
   commands:
-  - apk add git add gcc musl-dev libffi-dev openssl-dev
+  - apk add git gcc musl-dev libffi-dev openssl-dev
   - pip install -r requirements-dev.pip
   - pylint ecs_cluster_deployer
   - pytest --cov-report term --cov=ecs_cluster_deployer tests/ -W ignore::DeprecationWarning
@@ -113,7 +113,7 @@ steps:
 - name: test-deployer
   image: python:alpine
   commands:
-  - apk add git add gcc musl-dev libffi-dev openssl-dev
+  - apk add git gcc musl-dev libffi-dev openssl-dev
   - pip install -r requirements-dev.pip
   - pylint ecs_cluster_deployer
   - pytest --cov-report term --cov=ecs_cluster_deployer tests/ -W ignore::DeprecationWarning
@@ -205,6 +205,6 @@ trigger:
 
 ---
 kind: signature
-hmac: ea477bbcb195f44ba0b156266fb589241b7c9def03b78899b987759254b75a09
+hmac: 2ba8b02c808c8bf68f62269d5b5cc9c3d617c0e4213d103a596ee7c11666976b
 
 ...
