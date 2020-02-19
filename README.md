@@ -1,11 +1,12 @@
 # ecs-cluster-deployer
 [![Build Status](https://drone.kloudcover.com/api/badges/ktruckenmiller/ecs-cluster-deployer/status.svg)](https://drone.kloudcover.com/ktruckenmiller/ecs-cluster-deployer)
+[![Coverage Status](https://coveralls.io/repos/github/ktruckenmiller/ecs-cluster-deployer/badge.svg?branch=master)](https://coveralls.io/github/ktruckenmiller/ecs-cluster-deployer?branch=master)
 
 ## Pre-requisites
 
 - Docker
 
-## Developer
+## Contributing
 
 For more configurations options and technical documentation, please visit the docs at [DEVELOPER.md](DEVELOPER.md)
 

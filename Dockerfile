@@ -6,10 +6,15 @@ RUN pip install -r requirements.pip
 
 
 FROM base as test
-COPY tests/requirements.pip tests/requirements.pip
+COPY requirements-dev.pip requirements-dev.pip
+COPY requirements.pip requirements.pip
 ENV ECS_CLUSTER_DEPLOYER_VERSION=test
-RUN apk add gcc musl-dev && \
-    pip install -r tests/requirements.pip
+RUN apk add \
+        gcc \
+        musl-dev \
+        libffi-dev \
+        openssl-dev && \
+    pip install -r requirements-dev.pip
 COPY . .
 
 FROM base as dist

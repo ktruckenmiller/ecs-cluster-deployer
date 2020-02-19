@@ -1,5 +1,5 @@
 import pytest
-import yaml
+from moto import mock_ec2, mock_sts
 import botocore
 from unittest.mock import MagicMock
 from ecs_cluster_deployer.vars import ECSVars
@@ -7,6 +7,8 @@ from ecs_cluster_deployer.compute import EC2Instances
 
 
 @pytest.fixture
+@mock_ec2
+@mock_sts
 def ecs_inst(monkeypatch):
     monkeypatch.setenv('VERSION', '1')
     monkeypatch.setenv('VALUES_FILE', 'tests/regression/base.yml')

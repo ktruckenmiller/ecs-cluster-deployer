@@ -1,5 +1,0 @@
--r ../requirements.pip
-mock
-pytest
-pytest-cov
-pylint
