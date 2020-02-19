@@ -24,6 +24,8 @@ steps:
     - .coverage
     token:
       from_secret: coveralls_token
+  depends_on:
+  - test-deployer
 
 - name: zip-linux
   image: alpine
@@ -125,6 +127,8 @@ steps:
     - .coverage
     token:
       from_secret: coveralls_token
+  depends_on:
+  - test-deployer
 
 - name: zip-linux
   image: alpine
@@ -201,6 +205,6 @@ trigger:
 
 ---
 kind: signature
-hmac: a0d33c1ebeeafd3ff311ed5d9a6c1fe58e7992b7f8f7b79680306c5a95a3eb54
+hmac: 8460edf457204b6edd51605d60c98bf8f129e2d99df012bd30e67491dc4a6517
 
 ...
