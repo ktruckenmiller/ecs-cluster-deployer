@@ -7,7 +7,7 @@
 
 > "So, it's like a poor man's ECS Fargate?" - [DRue](https://github.com/danrue)
 
-Deploy and manage [dirt cheap](#cost-comparison) ECS clusters and save yourself the time, money, and engineering effort it takes learning and deploying [Kubernetes](#hitler-deploys-kubernetes).
+Deploy and manage [dirt cheap](#cost-comparison) ECS clusters and save yourself the time, money, and engineering effort it takes learning and deploying [Kubernetes](https://youtu.be/9wvEwPLcLcA).
 
 - [About](#about)
   - [Why?](#why?)
