@@ -1,0 +1,10 @@
+{
+    "Author": "Kevin Truckenmiller",
+    "Year": "2020",
+    "License": [
+        "MIT"
+    ],
+    "ECSClusterName": "my-cluster",
+    "Autoscaling": true,
+    "Region": "us-east-1"
+}

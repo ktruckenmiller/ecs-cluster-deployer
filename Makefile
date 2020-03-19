@@ -15,7 +15,7 @@ sign:
 	drone jsonnet --stdout --stream > .drone.yml
 	drone sign ktruckenmiller/ecs-cluster-deployer --save
 	git add .drone.yml .drone.jsonnet
-	git commit -m 'updated dronefile'
+	git commit -m 'signed dronefile'
 	git push
 
 build:
