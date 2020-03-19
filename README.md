@@ -10,8 +10,23 @@
 Deploy and manage [dirt cheap](#cost-comparison) ECS clusters and save yourself the time, money, and engineering effort it takes learning and deploying [Kubernetes](#hitler-deploys-kubernetes).
 
 - [About](#about)
+  - [Why?](#why?)
 - [Installation and Configuration](#installation-and-configuration)
+  - [Pre-Requisites](#pre-requisites)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
 - [Contributing](#contributing)
+- [Faq](#faq)
+- [Tool Internals](#what-does-this-tool-actually-do)
+  - [CodePipeline](#codepipelin)
+  - [Deployment](#deployment)
+  - [AMI](#ami)
+  - [Auto Scaling](#auto-scaling)
+  - [Smoke Test](#smoke-test)
+  - [EC2 ASG](#ec2-asg)
+  - [Mounts](#mounts)
+  - [Clean Up](#clean-up)
+- [What Does This Tool Not Do?](#what-does-this-tool-not-do)
 
 
 ## About
