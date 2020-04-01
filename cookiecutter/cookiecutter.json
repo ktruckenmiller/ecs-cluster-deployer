@@ -1,0 +1,10 @@
+{
+  "Autoscaling": ["true", "false"],
+  "ECSClusterName": "The name of the cluster",
+  "Region": [
+      "us-east-1",
+      "us-east-2",
+      "us-west-2",
+      "us-west-1"
+  ]
+}

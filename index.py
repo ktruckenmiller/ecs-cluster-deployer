@@ -4,6 +4,7 @@ Index.py entrypoint for ecs cluster deployer
 This file should decide the action you'd like to take
 """
 import argparse
+from cookiecutter.main import cookiecutter
 from ecs_cluster_deployer.entry import put_pipeline, deploy
 
 parser = argparse.ArgumentParser(description='Deploy ecs clusters')
@@ -16,3 +17,6 @@ if 'put-pipeline' in args.action:
 
 if 'deploy' in args.action:
     deploy()
+
+if 'template' in args.action:
+    cookiecutter('/cookiecutter/')

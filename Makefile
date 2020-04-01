@@ -39,6 +39,14 @@ unit: build-test
 		--cov=ecs_cluster_deployer tests \
 		-W ignore::DeprecationWarning
 
+test-template: build
+	docker run -it --rm \
+		-w ${PWD} \
+		-v ${PWD}/fake-dir:${PWD} \
+		-e AWS_DEFAULT_REGION=$(REGION) \
+		-e VERSION=$ECS_CLUSTER_DEPLOYER_VERSION \
+		-e IAM_ROLE \
+		ktruckenmiller/ecs-cluster-deployer template
 
 test-ami:
 	docker run -it --rm --entrypoint bash \

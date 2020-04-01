@@ -1,4 +1,4 @@
-REGION ?= {{Region}}
+REGION ?= {{cookiecutter.Region}}
 
 put-pipeline:
 	docker run -it --rm \
