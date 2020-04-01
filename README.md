@@ -72,32 +72,29 @@ This project aims to provide the user with a simple way to not have to focus on 
 Create your cluster repository directory. This tool will use github to deploy and manage your cluster, so it kinda needs this.
 
 ```bash
-
-mkdir ~/my-cluster
-cd ~/my-cluster
-git init
-git remote add origin https://github.com/<your name>/<cluster-repo>
+docker run -it --rm -v $(pwd):$(pwd) -w $(pwd) ktruckenmiller/ecs-cluster-deployer template
 ```
 
-The next step will create the cluster configuration file, and a Makefile. You don't need the Makefile, but it's there for convenience.
+This will ask you some questions about your cluster, and it will create the project folder and files for you.
+
+Then you'll navigate into that project folder
 
 ```bash
-docker run -it --rm \
-  -v $(pwd):$(pwd) \
-  -w $(pwd) \
-  --entrypoint="" \
-  ktruckenmiller/ecs-cluster-deployer \
-  boilr template use latest .
-
+# this will initialize git and push your configuration files to your repository for code pipeline
+cd <your new project name>
+git init
+git add .
+git commit -m "init"
+git remote add origin <your github repository remote>
+git push -u origin master
 ```
 
 This puts the pipeline into AWS and brings your cluster into reality!
 
 ```bash
-git add .
-git commit -m "my cluster configuration"
-git push -u origin master
 # this pushes the CodePipeline to AWS, and deploys the cluster
+# it will ask you to put a github personal access token into AWS secrets manager  
+# so that your pipeline can pull files from your github
 make put-pipeline
 ```
 
