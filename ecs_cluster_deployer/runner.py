@@ -4,6 +4,7 @@ CloudFormation deployer
 import logging
 import time
 import os
+import subprocess
 import boto3
 import botocore
 
@@ -20,7 +21,10 @@ class Runner:
     @property
     def version(self):
         """ The version of the deployment """
-        return os.environ.get('VERSION')
+        if os.environ.get('VERSION'):
+            return os.environ.get('VERSION')
+        else:
+            return str(subprocess.check_output(['git', 'rev-parse', 'HEAD']))
 
     def get_stack_errors(self):
         """ Displays stack errors for the user """
