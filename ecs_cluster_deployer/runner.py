@@ -120,7 +120,6 @@ class Runner:
         if stacks:
             action = 'UPDATE'
             try:
-
                 res = self.cf.update_stack(
                     StackName=self.stack_name,
                     TemplateBody=template.to_json(),

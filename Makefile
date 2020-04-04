@@ -1,5 +1,5 @@
 REGION ?= "us-east-2"
-ECS_CLUSTER_DEPLOYER_VERSION := $(shell git rev-parse HEAD)
+ECS_CLUSTER_DEPLOYER_VERSION ?= $(shell git rev-parse HEAD)
 
 develop: build-test
 	@echo develop
@@ -21,12 +21,12 @@ sign:
 build:
 	docker build \
 	-t ktruckenmiller/ecs-cluster-deployer \
-	--build-arg ECS_CLUSTER_DEPLOYER_VERSION=$ECS_CLUSTER_DEPLOYER_VERSION .
+	--build-arg ECS_CLUSTER_DEPLOYER_VERSION=$(ECS_CLUSTER_DEPLOYER_VERSION) .
 
 build-test:
 	docker build \
 	-t ktruckenmiller/ecs-cluster-deployer:test \
-	--build-arg ECS_CLUSTER_DEPLOYER_VERSION=$ECS_CLUSTER_DEPLOYER_VERSION \
+	--build-arg ECS_CLUSTER_DEPLOYER_VERSION=$(ECS_CLUSTER_DEPLOYER_VERSION) \
 	--target test .
 
 unit: build-test
@@ -44,7 +44,7 @@ test-template: build
 		-w ${PWD} \
 		-v ${PWD}/fake-dir:${PWD} \
 		-e AWS_DEFAULT_REGION=$(REGION) \
-		-e VERSION=$ECS_CLUSTER_DEPLOYER_VERSION \
+		-e VERSION=$(ECS_CLUSTER_DEPLOYER_VERSION) \
 		-e IAM_ROLE \
 		ktruckenmiller/ecs-cluster-deployer template
 
@@ -61,7 +61,7 @@ deploy: build
 	  -v ${PWD}:/code \
 	  --workdir=/code \
 	  -e AWS_DEFAULT_REGION=$(REGION) \
-		-e VERSION=$ECS_CLUSTER_DEPLOYER_VERSION \
+		-e VERSION=$(ECS_CLUSTER_DEPLOYER_VERSION) \
 		-e AMI=$(shell cat ami/ecs/ami.txt) \
 		-e VALUES_FILE=tests/regression/infra.yml \
 	  -e IAM_ROLE \
@@ -72,7 +72,7 @@ put-pipeline: build
 		-v ${PWD}:/code \
 		--workdir=/code \
 		-e AWS_DEFAULT_REGION=$(REGION) \
-		-e VERSION=$ECS_CLUSTER_DEPLOYER_VERSION \
+		-e VERSION=$(ECS_CLUSTER_DEPLOYER_VERSION) \
 		-e IAM_ROLE \
 		-e VALUES_FILE=tests/regression/infra.yml \
 		ktruckenmiller/ecs-cluster-deployer put-pipeline
