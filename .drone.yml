@@ -17,16 +17,6 @@ steps:
   environment:
     AWS_DEFAULT_REGION: us-west-2
 
-- name: coveralls
-  image: lizheming/drone-coveralls
-  settings:
-    files:
-    - .coverage
-    token:
-      from_secret: coveralls_token
-  depends_on:
-  - test-deployer
-
 - name: zip-linux
   image: alpine
   commands:
@@ -120,16 +110,6 @@ steps:
   environment:
     AWS_DEFAULT_REGION: us-west-2
 
-- name: coveralls
-  image: lizheming/drone-coveralls
-  settings:
-    files:
-    - .coverage
-    token:
-      from_secret: coveralls_token
-  depends_on:
-  - test-deployer
-
 - name: zip-linux
   image: alpine
   commands:
@@ -205,6 +185,6 @@ trigger:
 
 ---
 kind: signature
-hmac: 2ba8b02c808c8bf68f62269d5b5cc9c3d617c0e4213d103a596ee7c11666976b
+hmac: 4b4371b4893c1998f522c5c6e93f5840d92204d84a6b711bbf054be0216b6db8
 
 ...
