@@ -13,7 +13,7 @@ def add_scaling(spot_fleet, template, cluster_name):
     ssm_param = Parameter(
         'Scale{}'.format(sanitize_cfn_resource_name(spot_fleet.get('name'))),
         Type="String",
-        Value="",
+        Value="0",
         Name=Sub("/ecs-maestro/${ClusterName}/${Version}/scaletime")
     )
     template.add_resource(ssm_param)
