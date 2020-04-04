@@ -13,7 +13,7 @@ INSTANCE_ID=$(curl http://169.254.169.254/latest/meta-data/instance-id)
 VOLUME=$(aws ec2 describe-volumes --filter Name=attachment.instance-id,Values=${INSTANCE_ID} --region ${EC2_REGION} --query 'Volumes[*].Attachments[?Device==`/dev/xvdcz`].VolumeId' --output text)
 vgchange -an docker
 aws ec2 detach-volume --volume-id ${VOLUME} --region ${EC2_REGION}
-sleep 20
+sleep 45
 aws ec2 delete-volume --volume-id ${VOLUME} --region ${EC2_REGION}
 
 # aws ec2 --- lookup device and unmount

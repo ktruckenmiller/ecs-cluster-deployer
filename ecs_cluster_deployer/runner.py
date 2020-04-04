@@ -23,8 +23,7 @@ class Runner:
         """ The version of the deployment """
         if os.environ.get('VERSION'):
             return os.environ.get('VERSION')
-        else:
-            return str(subprocess.check_output(['git', 'rev-parse', 'HEAD']))
+        return str(subprocess.check_output(['git', 'rev-parse', 'HEAD']))
 
     def get_stack_errors(self):
         """ Displays stack errors for the user """
