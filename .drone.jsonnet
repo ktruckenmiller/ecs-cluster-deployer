@@ -30,8 +30,8 @@ local Pipeline(env) = {
         "AWS_DEFAULT_REGION": "us-west-2"
       },
       commands: [
-        "apk add git",
-        "pip install -r tests/requirements.pip",
+        "apk add git gcc musl-dev libffi-dev openssl-dev",
+        "pip install -r requirements-dev.pip",
         "pylint ecs_cluster_deployer",
         "pytest --cov-report term --cov=ecs_cluster_deployer tests/ -W ignore::DeprecationWarning"
       ]

@@ -1,0 +1,20 @@
+---
+kind: aws-ecs-cluster-deployer
+cluster:
+  name: {{ cookiecutter.ECSClusterName }}
+ec2_instances:
+  autoscaling: {{ cookiecutter.Autoscaling }}
+  ebs_mounts:
+    - name: basic
+      device_name: /dev/xvda
+      size: 20
+  spot_fleets:
+    - name: main
+      desired_weight: 1
+      min_weight: 1
+      max_weight: 16
+      bids:
+        - instance_type: t3.micro
+          price: 0.01
+        - instance_type: t3.small
+          price: 0.01

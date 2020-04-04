@@ -3,7 +3,9 @@ CloudFormation deployer
 """
 import logging
 import time
+import sys
 import os
+import subprocess
 import boto3
 import botocore
 
@@ -20,7 +22,9 @@ class Runner:
     @property
     def version(self):
         """ The version of the deployment """
-        return os.environ.get('VERSION')
+        if os.environ.get('VERSION'):
+            return os.environ.get('VERSION')
+        return subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode(sys.stdout.encoding).strip()
 
     def get_stack_errors(self):
         """ Displays stack errors for the user """
@@ -116,7 +120,6 @@ class Runner:
         if stacks:
             action = 'UPDATE'
             try:
-
                 res = self.cf.update_stack(
                     StackName=self.stack_name,
                     TemplateBody=template.to_json(),

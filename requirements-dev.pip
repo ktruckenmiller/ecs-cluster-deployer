@@ -1,0 +1,7 @@
+-r requirements.pip
+mock
+moto
+pytest
+pytest-cov
+pylint
+pytest-xdist

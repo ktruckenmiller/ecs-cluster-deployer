@@ -10,8 +10,8 @@ steps:
 - name: test-deployer
   image: python:alpine
   commands:
-  - apk add git
-  - pip install -r tests/requirements.pip
+  - apk add git gcc musl-dev libffi-dev openssl-dev
+  - pip install -r requirements-dev.pip
   - pylint ecs_cluster_deployer
   - pytest --cov-report term --cov=ecs_cluster_deployer tests/ -W ignore::DeprecationWarning
   environment:
@@ -21,7 +21,7 @@ steps:
   image: alpine
   commands:
   - apk add zip unzip
-  - "cd ecs_cluster_deployer/lambdas && zip -r deployment.zip *"
+  - cd ecs_cluster_deployer/lambdas && zip -r deployment.zip *
   - mv deployment.zip ../../deployment.zip
   depends_on:
   - test-deployer
@@ -37,7 +37,7 @@ steps:
     secret_key:
       from_secret: secret_key
     source: deployment.zip
-    target: "ecs_cluster_deployer/${DRONE_COMMIT}"
+    target: ecs_cluster_deployer/${DRONE_COMMIT}
   depends_on:
   - zip-linux
 
@@ -52,7 +52,7 @@ steps:
     secret_key:
       from_secret: secret_key
     source: deployment.zip
-    target: "ecs_cluster_deployer/${DRONE_COMMIT}"
+    target: ecs_cluster_deployer/${DRONE_COMMIT}
   depends_on:
   - zip-linux
 
@@ -67,7 +67,7 @@ steps:
     secret_key:
       from_secret: secret_key
     source: deployment.zip
-    target: "ecs_cluster_deployer/${DRONE_COMMIT}"
+    target: ecs_cluster_deployer/${DRONE_COMMIT}
   depends_on:
   - zip-linux
 
@@ -75,13 +75,13 @@ steps:
   image: plugins/docker
   settings:
     build_args:
-    - "ECS_CLUSTER_DEPLOYER_VERSION=${DRONE_COMMIT}"
+    - ECS_CLUSTER_DEPLOYER_VERSION=${DRONE_COMMIT}
     password:
       from_secret: password
     repo: ktruckenmiller/ecs-cluster-deployer
     tags:
     - latest
-    - "${DRONE_COMMIT}"
+    - ${DRONE_COMMIT}
     username:
       from_secret: username
   depends_on:
@@ -103,8 +103,8 @@ steps:
 - name: test-deployer
   image: python:alpine
   commands:
-  - apk add git
-  - pip install -r tests/requirements.pip
+  - apk add git gcc musl-dev libffi-dev openssl-dev
+  - pip install -r requirements-dev.pip
   - pylint ecs_cluster_deployer
   - pytest --cov-report term --cov=ecs_cluster_deployer tests/ -W ignore::DeprecationWarning
   environment:
@@ -114,7 +114,7 @@ steps:
   image: alpine
   commands:
   - apk add zip unzip
-  - "cd ecs_cluster_deployer/lambdas && zip -r deployment.zip *"
+  - cd ecs_cluster_deployer/lambdas && zip -r deployment.zip *
   - mv deployment.zip ../../deployment.zip
   depends_on:
   - test-deployer
@@ -130,7 +130,7 @@ steps:
     secret_key:
       from_secret: secret_key
     source: deployment.zip
-    target: "ecs_cluster_deployer/${DRONE_TAG}"
+    target: ecs_cluster_deployer/${DRONE_TAG}
   depends_on:
   - zip-linux
 
@@ -145,7 +145,7 @@ steps:
     secret_key:
       from_secret: secret_key
     source: deployment.zip
-    target: "ecs_cluster_deployer/${DRONE_TAG}"
+    target: ecs_cluster_deployer/${DRONE_TAG}
   depends_on:
   - zip-linux
 
@@ -160,7 +160,7 @@ steps:
     secret_key:
       from_secret: secret_key
     source: deployment.zip
-    target: "ecs_cluster_deployer/${DRONE_TAG}"
+    target: ecs_cluster_deployer/${DRONE_TAG}
   depends_on:
   - zip-linux
 
@@ -168,12 +168,12 @@ steps:
   image: plugins/docker
   settings:
     build_args:
-    - "ECS_CLUSTER_DEPLOYER_VERSION=${DRONE_TAG}"
+    - ECS_CLUSTER_DEPLOYER_VERSION=${DRONE_TAG}
     password:
       from_secret: password
     repo: ktruckenmiller/ecs-cluster-deployer
     tags:
-    - "${DRONE_TAG}"
+    - ${DRONE_TAG}
     username:
       from_secret: username
   depends_on:
@@ -185,6 +185,6 @@ trigger:
 
 ---
 kind: signature
-hmac: 05da4cbac442159673f7c110f887e48aec2335337100be1db590313ffffde10f
+hmac: 4b4371b4893c1998f522c5c6e93f5840d92204d84a6b711bbf054be0216b6db8
 
 ...

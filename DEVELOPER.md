@@ -1,12 +1,12 @@
 # Development
 
-A guide for releases
+ECS Cluster Deployer does everything with Docker. If you don't use Docker, that's ok. It's an easy way to package and distribute applications.
 
 ## How to test
 
 ### Unit Tests
 
-Right now, unit tests are performed by running `make deveop region=us-east-2` and then running `pytest -s tests/unit`.
+Right now, unit tests are performed by running `make unit`.
 
 ### Testing Cluster Deploy
 

@@ -1,20 +1,20 @@
 import pytest
-import yaml
+import boto3
+from moto import mock_ec2, mock_sts
 from ecs_cluster_deployer.vars import ECSVars
 from ecs_cluster_deployer.compute import EC2Instances
-from unittest.mock import patch
-from pprint import pprint
+
 @pytest.fixture
+@mock_ec2
+@mock_sts
 def ecs_inst(monkeypatch):
     monkeypatch.setenv('VERSION', '1')
     monkeypatch.setenv('VALUES_FILE', 'tests/regression/base.yml')
     monkeypatch.setenv('AMI', 'ami-id')
-    vars = ECSVars()
-
-    return EC2Instances(vars)
+    ecs_vars = ECSVars()
+    return EC2Instances(ecs_vars)
 
 def test_init(ecs_inst):
-
     parameters = [
         "S3Bucket",
         "S3Prefix",

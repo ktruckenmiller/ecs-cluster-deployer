@@ -4,3 +4,4 @@ jinja2
 cerberus
 PyYaml
 GitPython
+cookiecutter
